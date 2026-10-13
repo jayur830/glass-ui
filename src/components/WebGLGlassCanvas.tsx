@@ -13,17 +13,28 @@ import {
   Sparkles,
   ToggleLeft,
 } from 'lucide-react';
+import { ImageIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { CustomLiquidEngine } from '@/lib/CustomLiquidEngine';
 import type { LiquidGlassElementConfig } from '@/types/liquidGlass';
 
+export const BACKGROUND_LIST = [
+  { id: 1, name: '숲 & 자연', src: '/background-1.avif' },
+  { id: 2, name: '모던 건축', src: '/background-2.avif' },
+  { id: 3, name: '화려한 네온', src: '/background-3.avif' },
+  { id: 4, name: '컬러 그라디언트', src: '/background-4.jpg' },
+  { id: 5, name: '프리즘 홀로그램', src: '/background-5.jpg' },
+  { id: 6, name: '사이버 사이언스', src: '/background-6.jpg' },
+];
+
 export interface WebGLGlassCanvasProps {
   config: LiquidGlassElementConfig;
   bgMode: number;
+  onBgModeChange?: (mode: number) => void;
 }
 
-export default function WebGLGlassCanvas({ config, bgMode }: WebGLGlassCanvasProps) {
+export default function WebGLGlassCanvas({ config, bgMode, onBgModeChange }: WebGLGlassCanvasProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const liquidGlassInstanceRef = useRef<CustomLiquidEngine | null>(null);
 
@@ -39,7 +50,22 @@ export default function WebGLGlassCanvas({ config, bgMode }: WebGLGlassCanvasPro
   const [selectedDay, setSelectedDay] = useState(13);
   const [selectValue, setSelectValue] = useState('high-refraction');
 
-  const bgImageSrc = bgMode === 1 ? '/background-1.avif' : bgMode === 2 ? '/background-2.avif' : '/background-3.avif';
+  const currentBg = BACKGROUND_LIST.find((bg) => bg.id === bgMode) || BACKGROUND_LIST[0];
+  const bgImageSrc = currentBg.src;
+
+  const handlePrevBg = () => {
+    if (!onBgModeChange) return;
+    const currentIndex = BACKGROUND_LIST.findIndex((bg) => bg.id === bgMode);
+    const prevIndex = (currentIndex - 1 + BACKGROUND_LIST.length) % BACKGROUND_LIST.length;
+    onBgModeChange(BACKGROUND_LIST[prevIndex].id);
+  };
+
+  const handleNextBg = () => {
+    if (!onBgModeChange) return;
+    const currentIndex = BACKGROUND_LIST.findIndex((bg) => bg.id === bgMode);
+    const nextIndex = (currentIndex + 1) % BACKGROUND_LIST.length;
+    onBgModeChange(BACKGROUND_LIST[nextIndex].id);
+  };
 
   // 1. Initialise Custom WebGL Liquid Glass Engine
   useEffect(() => {
@@ -119,7 +145,7 @@ export default function WebGLGlassCanvas({ config, bgMode }: WebGLGlassCanvasPro
   return (
     <div
       ref={rootRef}
-      className="relative w-full min-h-[920px] md:min-h-[820px] rounded-3xl overflow-hidden border border-white/15 shadow-2xl select-none"
+      className="relative w-full min-h-230 md:min-h-205 rounded-3xl overflow-hidden border border-white/15 shadow-2xl select-none"
       style={{
         position: 'relative',
         touchAction: 'pan-y',
@@ -153,9 +179,54 @@ export default function WebGLGlassCanvas({ config, bgMode }: WebGLGlassCanvasPro
         </div>
       </div>
 
+      {/* Top Background Carousel Bar (배경 넘기기 바) */}
+      <div className="absolute top-4 left-4 right-4 z-30 flex items-center justify-between gap-2 p-2 rounded-2xl bg-slate-950/60 backdrop-blur-md border border-white/20 shadow-lg">
+        <button
+          type="button"
+          onClick={handlePrevBg}
+          className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-white/10 hover:bg-white/20 rounded-xl transition active:scale-95"
+          title="이전 배경"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          <span className="hidden sm:inline">이전 배경</span>
+        </button>
+
+        {/* Background Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 no-scrollbar max-w-[65%] sm:max-w-none">
+          <div className="hidden md:flex items-center gap-1 text-[11px] text-white/60 font-medium mr-1 shrink-0">
+            <ImageIcon className="w-3.5 h-3.5 text-cyan-300" />
+            <span>배경 선택:</span>
+          </div>
+          {BACKGROUND_LIST.map((bg) => (
+            <button
+              key={bg.id}
+              type="button"
+              onClick={() => onBgModeChange?.(bg.id)}
+              className={`px-2.5 py-1 text-xs rounded-xl font-medium shrink-0 transition ${
+                bgMode === bg.id
+                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-md'
+                  : 'bg-white/5 text-white/70 hover:bg-white/15 hover:text-white'
+              }`}
+            >
+              {bg.name}
+            </button>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          onClick={handleNextBg}
+          className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-white/10 hover:bg-white/20 rounded-xl transition active:scale-95"
+          title="다음 배경"
+        >
+          <span className="hidden sm:inline">다음 배경</span>
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
       {/* 1. Glass Container (컨테이너): 종합 컴포넌트 뷰 */}
       <div
-        className="liquid-glass-item absolute top-6 left-4 md:top-8 md:left-8 w-[calc(100%-2rem)] max-w-sm md:w-[360px] p-5 md:p-6 z-10 text-white rounded-[32px] cursor-grab active:cursor-grabbing"
+        className="liquid-glass-item absolute top-20 left-4 md:top-20 md:left-8 w-[calc(100%-2rem)] max-w-sm md:w-90 p-5 md:p-6 z-10 text-white rounded-[32px] cursor-grab active:cursor-grabbing"
         style={{ minHeight: '340px' }}
       >
         <div className="liquid-glass-content space-y-4">
@@ -254,7 +325,7 @@ export default function WebGLGlassCanvas({ config, bgMode }: WebGLGlassCanvasPro
                     isChecked1 ? 'bg-cyan-500 border-cyan-400 text-slate-900' : 'bg-white/10 border-white/30'
                   }`}
                 >
-                  {isChecked1 && <Check className="w-3 h-3 stroke-[3]" />}
+                  {isChecked1 && <Check className="w-3 h-3 stroke-3" />}
                 </span>
                 <span>실시간 굴절</span>
               </label>
@@ -271,7 +342,7 @@ export default function WebGLGlassCanvas({ config, bgMode }: WebGLGlassCanvasPro
                     isChecked2 ? 'bg-cyan-500 border-cyan-400 text-slate-900' : 'bg-white/10 border-white/30'
                   }`}
                 >
-                  {isChecked2 && <Check className="w-3 h-3 stroke-[3]" />}
+                  {isChecked2 && <Check className="w-3 h-3 stroke-3" />}
                 </span>
                 <span>블러 적용</span>
               </label>
@@ -282,7 +353,7 @@ export default function WebGLGlassCanvas({ config, bgMode }: WebGLGlassCanvasPro
 
       {/* 2. Glass Card & Tabs & Select & Radio (카드, 탭, 셀렉트, 라디오) */}
       <div
-        className="liquid-glass-item absolute top-96 left-4 md:top-8 md:left-auto md:right-8 w-[calc(100%-2rem)] max-w-sm md:w-[360px] p-5 md:p-6 z-10 text-white rounded-[32px] cursor-grab active:cursor-grabbing"
+        className="liquid-glass-item absolute top-107.5 left-4 md:top-20 md:left-auto md:right-8 w-[calc(100%-2rem)] max-w-sm md:w-90 p-5 md:p-6 z-10 text-white rounded-[32px] cursor-grab active:cursor-grabbing"
         style={{ minHeight: '340px' }}
       >
         <div className="liquid-glass-content space-y-4">
@@ -388,7 +459,7 @@ export default function WebGLGlassCanvas({ config, bgMode }: WebGLGlassCanvasPro
 
       {/* 3. Glass Calendar (캘린더) */}
       <div
-        className="liquid-glass-item absolute top-[720px] left-4 md:top-[400px] md:left-8 w-[calc(100%-2rem)] max-w-sm md:w-[360px] p-5 md:p-6 z-10 text-white rounded-[32px] cursor-grab active:cursor-grabbing"
+        className="liquid-glass-item absolute top-180 left-4 md:top-100 md:left-8 w-[calc(100%-2rem)] max-w-sm md:w-90 p-5 md:p-6 z-10 text-white rounded-[32px] cursor-grab active:cursor-grabbing"
         style={{ minHeight: '340px' }}
       >
         <div className="liquid-glass-content space-y-3">
@@ -470,7 +541,7 @@ export default function WebGLGlassCanvas({ config, bgMode }: WebGLGlassCanvasPro
       </div>
 
       {/* 4. Circular Magnifier Lens (돋보기 렌즈 - 볼록 굴절) */}
-      <div className="liquid-glass-item liquid-glass-lens absolute top-[1080px] left-6 md:top-[430px] md:left-[420px] w-40 h-40 md:w-48 md:h-48 z-20 text-white rounded-full cursor-grab active:cursor-grabbing flex flex-col items-center justify-center text-center p-4">
+      <div className="liquid-glass-item liquid-glass-lens absolute top-270 left-6 md:top-107.5 md:left-105 w-40 h-40 md:w-48 md:h-48 z-20 text-white rounded-full cursor-grab active:cursor-grabbing flex flex-col items-center justify-center text-center p-4">
         <div className="liquid-glass-content flex flex-col items-center space-y-1">
           <Search className="w-6 h-6 text-cyan-300" />
           <span className="font-black text-xs md:text-sm text-white tracking-wider">LENS DOME</span>
@@ -480,7 +551,7 @@ export default function WebGLGlassCanvas({ config, bgMode }: WebGLGlassCanvasPro
       </div>
 
       {/* 5. Center Prism Pill (글래스 버튼 & 뱃지) */}
-      <div className="liquid-glass-item absolute top-[1260px] left-1/2 -translate-x-1/2 md:top-[680px] md:left-1/2 md:-translate-x-1/2 px-6 py-4 z-10 text-white rounded-[32px] cursor-grab active:cursor-grabbing max-w-[90%]">
+      <div className="liquid-glass-item absolute top-315 left-1/2 -translate-x-1/2 md:top-170 md:left-1/2 md:-translate-x-1/2 px-6 py-4 z-10 text-white rounded-[32px] cursor-grab active:cursor-grabbing max-w-[90%]">
         <div className="liquid-glass-content flex items-center gap-3">
           <Sparkles className="w-5 h-5 text-amber-300 shrink-0" />
           <div>

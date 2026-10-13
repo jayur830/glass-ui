@@ -164,9 +164,12 @@ export default function WebGLBottomController({
                     <Palette className="w-3.5 h-3.5" /> 배경 이미지:
                   </span>
                   {[
-                    { id: 1, label: '배경 1 (숲/자연)' },
-                    { id: 2, label: '배경 2 (미니멀)' },
-                    { id: 3, label: '배경 3 (화려한 빛)' },
+                    { id: 1, label: '숲 & 자연' },
+                    { id: 2, label: '모던 건축' },
+                    { id: 3, label: '화려한 네온' },
+                    { id: 4, label: '컬러 그라디언트' },
+                    { id: 5, label: '프리즘 홀로그램' },
+                    { id: 6, label: '사이버 사이언스' },
                   ].map((bg) => (
                     <button
                       key={bg.id}

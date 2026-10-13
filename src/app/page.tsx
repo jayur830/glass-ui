@@ -32,7 +32,7 @@ export default function Home() {
 
       {/* WebGL Canvas & Draggable Components */}
       <section className="max-w-7xl mx-auto px-4">
-        <WebGLGlassCanvas config={config} bgMode={bgMode} />
+        <WebGLGlassCanvas config={config} bgMode={bgMode} onBgModeChange={setBgMode} />
       </section>
 
       {/* Bottom Sticky WebGL Optics Controller */}

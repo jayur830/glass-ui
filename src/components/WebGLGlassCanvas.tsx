@@ -3,12 +3,8 @@
 import { Music, Pause, Play, Search, ShieldCheck, SkipBack, SkipForward, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
+import { CustomLiquidEngine } from '@/lib/CustomLiquidEngine';
 import type { LiquidGlassElementConfig } from '@/types/liquidGlass';
-
-interface LiquidGlassInstance {
-  destroy(): void;
-  markChanged(): void;
-}
 
 /**
  * WebGL 글래스 캔버스 쇼케이스 컴포넌트의 Props 인터페이스
@@ -20,66 +16,44 @@ export interface WebGLGlassCanvasProps {
 
 export default function WebGLGlassCanvas({ config, bgMode }: WebGLGlassCanvasProps) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const liquidGlassInstanceRef = useRef<LiquidGlassInstance | null>(null);
+  const liquidGlassInstanceRef = useRef<CustomLiquidEngine | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [activeTab, setActiveTab] = useState('home');
 
   const bgImageSrc = bgMode === 1 ? '/background-1.avif' : bgMode === 2 ? '/background-2.avif' : '/background-3.avif';
 
-  // 1. Initialise LiquidGlass instance
+  // 1. Initialise Custom WebGL Liquid Glass Engine
   useEffect(() => {
-    let isMounted = true;
+    if (!rootRef.current) return;
 
-    async function initLiquidGlass() {
-      if (!rootRef.current) {
-        return;
-      }
-      try {
-        const { LiquidGlass } = await import('@ybouane/liquidglass');
-        if (!isMounted || !rootRef.current) {
-          return;
-        }
-
-        // Clean up previous instance if exists
-        if (liquidGlassInstanceRef.current) {
-          liquidGlassInstanceRef.current.destroy();
-          liquidGlassInstanceRef.current = null;
-        }
-
-        const glassElements = rootRef.current.querySelectorAll<HTMLElement>('.liquid-glass-item');
-        if (glassElements.length === 0) {
-          return;
-        }
-
-        // Apply initial config to all items
-        glassElements.forEach((el) => {
-          el.dataset.config = JSON.stringify(config);
-        });
-
-        const instance = await LiquidGlass.init({
-          root: rootRef.current,
-          glassElements,
-        });
-
-        // Prevent LiquidGlass from intercepting mobile scroll gestures when touching empty spaces
-        if (rootRef.current) {
-          rootRef.current.style.touchAction = 'pan-y';
-        }
-
-        if (isMounted) {
-          liquidGlassInstanceRef.current = instance;
-        } else {
-          instance.destroy();
-        }
-      } catch (err) {
-        console.error('Failed to initialise LiquidGlass WebGL engine:', err);
-      }
+    if (liquidGlassInstanceRef.current) {
+      liquidGlassInstanceRef.current.destroy();
+      liquidGlassInstanceRef.current = null;
     }
 
-    initLiquidGlass();
+    const glassElements = rootRef.current.querySelectorAll<HTMLElement>('.liquid-glass-item');
+    if (glassElements.length === 0) return;
+
+    glassElements.forEach((el) => {
+      const itemConfig = { ...config };
+      if (el.classList.contains('liquid-glass-lens')) {
+        itemConfig.bevelMode = 1;
+        itemConfig.cornerRadius = 60;
+        itemConfig.zRadius = 60;
+        itemConfig.refraction = Math.max(config.refraction, 1.2);
+      }
+      el.dataset.config = JSON.stringify(itemConfig);
+    });
+
+    const instance = new CustomLiquidEngine({
+      root: rootRef.current,
+      glassElements,
+      defaultConfig: config,
+    });
+
+    liquidGlassInstanceRef.current = instance;
 
     return () => {
-      isMounted = false;
       if (liquidGlassInstanceRef.current) {
         liquidGlassInstanceRef.current.destroy();
         liquidGlassInstanceRef.current = null;
@@ -107,6 +81,7 @@ export default function WebGLGlassCanvas({ config, bgMode }: WebGLGlassCanvasPro
     });
 
     try {
+      liquidGlassInstanceRef.current.updateConfig(config);
       liquidGlassInstanceRef.current.markChanged();
     } catch {}
   }, [config]);

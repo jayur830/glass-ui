@@ -1,36 +1,44 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { LiquidGlassElementConfig } from '@/types/liquidGlass';
-import { Sparkles, Music, Play, Pause, SkipForward, SkipBack, Search, ShieldCheck } from 'lucide-react';
+import { Music, Pause, Play, Search, ShieldCheck, SkipBack, SkipForward, Sparkles } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
-interface WebGLGlassCanvasProps {
+import type { LiquidGlassElementConfig } from '@/types/liquidGlass';
+
+interface LiquidGlassInstance {
+  destroy(): void;
+  markChanged(): void;
+}
+
+/**
+ * WebGL 글래스 캔버스 쇼케이스 컴포넌트의 Props 인터페이스
+ */
+export interface WebGLGlassCanvasProps {
   config: LiquidGlassElementConfig;
   bgMode: number;
 }
 
-export const WebGLGlassCanvas: React.FC<WebGLGlassCanvasProps> = ({ config, bgMode }) => {
+export default function WebGLGlassCanvas({ config, bgMode }: WebGLGlassCanvasProps) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const liquidGlassInstanceRef = useRef<any>(null);
+  const liquidGlassInstanceRef = useRef<LiquidGlassInstance | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [activeTab, setActiveTab] = useState('home');
 
-  const bgImageSrc =
-    bgMode === 1
-      ? '/background-1.avif'
-      : bgMode === 2
-      ? '/background-2.avif'
-      : '/background-3.avif';
+  const bgImageSrc = bgMode === 1 ? '/background-1.avif' : bgMode === 2 ? '/background-2.avif' : '/background-3.avif';
 
   // 1. Initialise LiquidGlass instance
   useEffect(() => {
     let isMounted = true;
 
     async function initLiquidGlass() {
-      if (!rootRef.current) return;
+      if (!rootRef.current) {
+        return;
+      }
       try {
         const { LiquidGlass } = await import('@ybouane/liquidglass');
-        if (!isMounted || !rootRef.current) return;
+        if (!isMounted || !rootRef.current) {
+          return;
+        }
 
         // Clean up previous instance if exists
         if (liquidGlassInstanceRef.current) {
@@ -39,7 +47,9 @@ export const WebGLGlassCanvas: React.FC<WebGLGlassCanvasProps> = ({ config, bgMo
         }
 
         const glassElements = rootRef.current.querySelectorAll<HTMLElement>('.liquid-glass-item');
-        if (glassElements.length === 0) return;
+        if (glassElements.length === 0) {
+          return;
+        }
 
         // Apply initial config to all items
         glassElements.forEach((el) => {
@@ -75,11 +85,14 @@ export const WebGLGlassCanvas: React.FC<WebGLGlassCanvasProps> = ({ config, bgMo
         liquidGlassInstanceRef.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 2. Update config dynamically when props change
   useEffect(() => {
-    if (!rootRef.current || !liquidGlassInstanceRef.current) return;
+    if (!rootRef.current || !liquidGlassInstanceRef.current) {
+      return;
+    }
 
     const glassElements = rootRef.current.querySelectorAll<HTMLElement>('.liquid-glass-item');
     glassElements.forEach((el) => {
@@ -103,7 +116,7 @@ export const WebGLGlassCanvas: React.FC<WebGLGlassCanvasProps> = ({ config, bgMo
     if (liquidGlassInstanceRef.current) {
       setTimeout(() => {
         try {
-          liquidGlassInstanceRef.current.markChanged();
+          liquidGlassInstanceRef.current?.markChanged();
         } catch {}
       }, 50);
     }
@@ -112,7 +125,7 @@ export const WebGLGlassCanvas: React.FC<WebGLGlassCanvasProps> = ({ config, bgMo
   return (
     <div
       ref={rootRef}
-      className="relative w-full min-h-[820px] md:min-h-[750px] rounded-3xl overflow-hidden border border-white/15 shadow-2xl select-none"
+      className="relative w-full min-h-205 md:min-h-187.5 rounded-3xl overflow-hidden border border-white/15 shadow-2xl select-none"
       style={{
         position: 'relative',
         touchAction: 'pan-y',
@@ -170,9 +183,7 @@ export const WebGLGlassCanvas: React.FC<WebGLGlassCanvasProps> = ({ config, bgMo
           </div>
 
           <div>
-            <p className="text-2xl md:text-3xl font-black text-white tracking-tight">
-              $128,490
-            </p>
+            <p className="text-2xl md:text-3xl font-black text-white tracking-tight">$128,490</p>
             <p className="text-xs font-semibold text-emerald-300 flex items-center gap-1">
               <span>↑ 34.2%</span>
               <span className="text-white/80">진짜 빛 굴절 효과</span>
@@ -188,14 +199,14 @@ export const WebGLGlassCanvas: React.FC<WebGLGlassCanvasProps> = ({ config, bgMo
 
       {/* Direct Children 2: Liquid Glass Media Player */}
       <div
-        className="liquid-glass-item absolute top-[210px] left-4 md:top-12 md:left-auto md:right-8 w-[calc(100%-2rem)] max-w-xs md:w-88 p-5 md:p-6 z-10 text-white rounded-[28px] md:rounded-[32px] cursor-grab active:cursor-grabbing"
+        className="liquid-glass-item absolute top-52.5 left-4 md:top-12 md:left-auto md:right-8 w-[calc(100%-2rem)] max-w-xs md:w-88 p-5 md:p-6 z-10 text-white rounded-[28px] md:rounded-[32px] cursor-grab active:cursor-grabbing"
         style={{
           minHeight: '190px',
         }}
       >
         <div className="liquid-glass-content space-y-3 md:space-y-4">
           <div className="flex items-center space-x-3 pointer-events-none">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-tr from-pink-500 to-indigo-600 flex items-center justify-center shadow-lg text-white">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-linear-to-tr from-pink-500 to-indigo-600 flex items-center justify-center shadow-lg text-white">
               <Music className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div className="flex-1 min-w-0">
@@ -224,7 +235,11 @@ export const WebGLGlassCanvas: React.FC<WebGLGlassCanvasProps> = ({ config, bgMo
               onClick={() => setIsPlaying(!isPlaying)}
               className="p-2.5 rounded-full bg-white text-slate-900 shadow-xl hover:scale-105 active:scale-95 transition-all"
             >
-              {isPlaying ? <Pause className="w-4 h-4 fill-slate-900" /> : <Play className="w-4 h-4 fill-slate-900 ml-0.5" />}
+              {isPlaying ? (
+                <Pause className="w-4 h-4 fill-slate-900" />
+              ) : (
+                <Play className="w-4 h-4 fill-slate-900 ml-0.5" />
+              )}
             </button>
             <button className="p-1.5 rounded-full text-white hover:bg-white/20 transition">
               <SkipForward className="w-4 h-4" />
@@ -234,17 +249,11 @@ export const WebGLGlassCanvas: React.FC<WebGLGlassCanvasProps> = ({ config, bgMo
       </div>
 
       {/* Direct Children 3: Circular Magnifier Lens (Bevel Mode 1: Dome) */}
-      <div
-        className="liquid-glass-item liquid-glass-lens absolute bottom-28 left-6 md:bottom-24 md:left-16 w-36 h-36 md:w-44 md:h-44 z-20 text-white rounded-full cursor-grab active:cursor-grabbing flex flex-col items-center justify-center text-center p-3 md:p-4"
-      >
+      <div className="liquid-glass-item liquid-glass-lens absolute bottom-28 left-6 md:bottom-24 md:left-16 w-36 h-36 md:w-44 md:h-44 z-20 text-white rounded-full cursor-grab active:cursor-grabbing flex flex-col items-center justify-center text-center p-3 md:p-4">
         <div className="liquid-glass-content flex flex-col items-center space-y-1">
           <Search className="w-5 h-5 md:w-6 md:h-6 text-white" />
-          <span className="font-black text-[11px] md:text-xs text-white tracking-wider">
-            LENS DOME
-          </span>
-          <span className="text-[9px] md:text-[10px] text-white/90 font-mono">
-            굴절 돋보기
-          </span>
+          <span className="font-black text-[11px] md:text-xs text-white tracking-wider">LENS DOME</span>
+          <span className="text-[9px] md:text-[10px] text-white/90 font-mono">굴절 돋보기</span>
           <span className="text-[8px] md:text-[9px] px-2 py-0.5 rounded-full bg-black/50 text-cyan-200">
             글자 위로 드래그
           </span>
@@ -252,9 +261,7 @@ export const WebGLGlassCanvas: React.FC<WebGLGlassCanvasProps> = ({ config, bgMo
       </div>
 
       {/* Direct Children 4: Navigation Bar */}
-      <div
-        className="liquid-glass-item absolute bottom-28 right-6 md:bottom-24 md:right-16 w-[calc(100%-12rem)] max-w-xs md:w-80 p-3 md:p-4 z-10 text-white rounded-[24px] md:rounded-[28px] cursor-grab active:cursor-grabbing"
-      >
+      <div className="liquid-glass-item absolute bottom-28 right-6 md:bottom-24 md:right-16 w-[calc(100%-12rem)] max-w-xs md:w-80 p-3 md:p-4 z-10 text-white rounded-[24px] md:rounded-[28px] cursor-grab active:cursor-grabbing">
         <div className="liquid-glass-content flex items-center justify-around pointer-events-auto">
           <button
             onClick={() => setActiveTab('home')}
@@ -284,21 +291,15 @@ export const WebGLGlassCanvas: React.FC<WebGLGlassCanvasProps> = ({ config, bgMo
       </div>
 
       {/* Direct Children 5: Center High-Refraction Prism Pill */}
-      <div
-        className="liquid-glass-item absolute top-[430px] md:top-1/2 left-1/2 -translate-x-1/2 md:-translate-y-1/2 px-5 py-3 md:px-8 md:py-5 z-10 text-white rounded-[32px] md:rounded-[40px] cursor-grab active:cursor-grabbing max-w-[90%]"
-      >
+      <div className="liquid-glass-item absolute top-107.5 md:top-1/2 left-1/2 -translate-x-1/2 md:-translate-y-1/2 px-5 py-3 md:px-8 md:py-5 z-10 text-white rounded-[32px] md:rounded-[40px] cursor-grab active:cursor-grabbing max-w-[90%]">
         <div className="liquid-glass-content flex items-center gap-2.5 md:gap-3">
-          <ShieldCheck className="w-5 h-5 md:w-6 md:h-6 text-cyan-300 flex-shrink-0" />
+          <ShieldCheck className="w-5 h-5 md:w-6 md:h-6 text-cyan-300 shrink-0" />
           <div>
-            <h4 className="font-extrabold text-sm md:text-base tracking-wide text-white">
-              Liquid Prism Glass
-            </h4>
-            <p className="text-[10px] md:text-xs text-white/90">
-              배경 굴절 왜곡을 실시간으로 확인하세요
-            </p>
+            <h4 className="font-extrabold text-sm md:text-base tracking-wide text-white">Liquid Prism Glass</h4>
+            <p className="text-[10px] md:text-xs text-white/90">배경 굴절 왜곡을 실시간으로 확인하세요</p>
           </div>
         </div>
       </div>
     </div>
   );
-};
+}

@@ -6,17 +6,17 @@ export interface GlassStyleConfig {
   tintIntensity: number; // 0.0 - 1.0 (how strong the color is)
   saturation: number; // 50 - 200%
   brightness: number; // 50 - 150%
-  
+
   // Border & Reflection / Rim Highlight
   borderWidth: number; // px (0 - 4)
   borderOpacity: number; // 0.0 - 1.0
   borderColor: string; // hex
   edgeHighlight: number; // 0.0 - 1.0 (inner top/edge glow)
-  
+
   // Geometry & Spacing
   borderRadius: number; // px (0 - 64)
   padding: number; // px (4 - 60)
-  
+
   // Lighting & Shadows
   shadowOpacity: number; // 0.0 - 1.0
   shadowBlur: number; // px (0 - 60)

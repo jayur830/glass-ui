@@ -1,31 +1,35 @@
 'use client';
 
-import React from 'react';
-import { LiquidGlassElementConfig, liquidGlassPresets, defaultLiquidGlassConfig } from '@/types/liquidGlass';
-import { Sliders, RotateCcw, ChevronUp, ChevronDown, Palette, Sparkles, Layers } from 'lucide-react';
+import { ChevronDown, ChevronUp, Palette, RotateCcw, Sliders } from 'lucide-react';
+import { useState } from 'react';
 
-interface WebGLBottomControllerProps {
+import type { LiquidGlassElementConfig } from '@/types/liquidGlass';
+import { defaultLiquidGlassConfig, liquidGlassPresets } from '@/types/liquidGlass';
+
+/**
+ * WebGL 하단 컨트롤러 컴포넌트의 Props 인터페이스
+ */
+export interface WebGLBottomControllerProps {
   config: LiquidGlassElementConfig;
-  onChange: (newConfig: LiquidGlassElementConfig) => void;
+  onChange(newConfig: LiquidGlassElementConfig): void;
   bgMode: number;
-  onBgModeChange: (mode: number) => void;
+  onBgModeChange(mode: number): void;
 }
 
-export const WebGLBottomController: React.FC<WebGLBottomControllerProps> = ({
+export default function WebGLBottomController({
   config,
   onChange,
   bgMode,
   onBgModeChange,
-}) => {
-  // 모바일 기기에서는 화면을 가리지 않도록 기본 접힘(false), 데스크톱에서는 펼침(true)
-  const [isExpanded, setIsExpanded] = React.useState(false);
-  const [activeTab, setActiveTab] = React.useState<'optics' | 'shape' | 'light' | 'json'>('optics');
-
-  React.useEffect(() => {
-    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
-      setIsExpanded(true);
+}: WebGLBottomControllerProps) {
+  // 모바일 기기에서는 화면을 가리지 않도록 기본 접힘(false), 데스크톱에서는 기본 펼침(true)으로 초기화
+  const [isExpanded, setIsExpanded] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 768;
     }
-  }, []);
+    return false;
+  });
+  const [activeTab, setActiveTab] = useState<'optics' | 'shape' | 'light' | 'json'>('optics');
 
   const updateParam = <K extends keyof LiquidGlassElementConfig>(key: K, value: LiquidGlassElementConfig[K]) => {
     onChange({
@@ -108,7 +112,7 @@ export const WebGLBottomController: React.FC<WebGLBottomControllerProps> = ({
 
           {/* Expandable Controls Body */}
           {isExpanded && (
-            <div className="p-6 space-y-5 max-h-[440px] overflow-y-auto">
+            <div className="p-6 space-y-5 max-h-110 overflow-y-auto">
               {/* Tabs & Background Selector */}
               <div className="flex flex-wrap items-center justify-between gap-4 pb-2 border-b border-white/10">
                 <div className="flex space-x-2">
@@ -460,4 +464,4 @@ export const WebGLBottomController: React.FC<WebGLBottomControllerProps> = ({
       </div>
     </div>
   );
-};
+}

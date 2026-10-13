@@ -1,16 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import { Info, Layers, Sparkles } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { LiquidGlassElementConfig, defaultLiquidGlassConfig } from '@/types/liquidGlass';
-import { WebGLBottomController } from '@/components/WebGLBottomController';
-import { Sparkles, Layers, Info } from 'lucide-react';
+import { useState } from 'react';
+
+import type { LiquidGlassElementConfig } from '@/types/liquidGlass';
+import { defaultLiquidGlassConfig } from '@/types/liquidGlass';
 
 // SSR 비활성화로 WebGL 및 DOM 캔버스 초기화 보장
-const WebGLGlassCanvas = dynamic(
-  () => import('@/components/WebGLGlassCanvas').then((mod) => mod.WebGLGlassCanvas),
-  { ssr: false }
-);
+const WebGLGlassCanvas = dynamic(() => import('@/components/WebGLGlassCanvas'), { ssr: false });
+
+const WebGLBottomController = dynamic(() => import('@/components/WebGLBottomController'), { ssr: false });
 
 export default function Home() {
   const [config, setConfig] = useState<LiquidGlassElementConfig>(defaultLiquidGlassConfig);
@@ -26,12 +26,24 @@ export default function Home() {
         </div>
 
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight drop-shadow-md">
-          Liquid <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-indigo-300 to-fuchsia-300">Glass UI</span>
+          Liquid{' '}
+          <span className="text-transparent bg-clip-text bg-linear-to-r from-cyan-300 via-indigo-300 to-fuchsia-300">
+            Glass UI
+          </span>
         </h1>
 
         <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-300 leading-relaxed font-normal">
-          참고 사이트(<a href="https://liquid-glass.ybouane.com/" target="_blank" rel="noreferrer" className="text-indigo-400 underline hover:text-indigo-300">liquid-glass.ybouane.com</a>)의 실제 WebGL 셰이더 파이프라인을 연동하여,
-          컴포넌트를 드래그할 때 배경의 실제 빛 굴절(Refraction)과 색수차(Chromatic Aberration) 왜곡을 실시간으로 렌더링합니다.
+          참고 사이트(
+          <a
+            href="https://liquid-glass.ybouane.com/"
+            target="_blank"
+            rel="noreferrer"
+            className="text-indigo-400 underline hover:text-indigo-300"
+          >
+            liquid-glass.ybouane.com
+          </a>
+          )의 실제 WebGL 셰이더 파이프라인을 연동하여, 컴포넌트를 드래그할 때 배경의 실제 빛 굴절(Refraction)과
+          색수차(Chromatic Aberration) 왜곡을 실시간으로 렌더링합니다.
         </p>
 
         <div className="flex items-center justify-center gap-4 text-xs text-slate-400 pt-1">
@@ -51,12 +63,7 @@ export default function Home() {
       </section>
 
       {/* Bottom Sticky WebGL Optics Controller */}
-      <WebGLBottomController
-        config={config}
-        onChange={setConfig}
-        bgMode={bgMode}
-        onBgModeChange={setBgMode}
-      />
+      <WebGLBottomController config={config} onChange={setConfig} bgMode={bgMode} onBgModeChange={setBgMode} />
     </main>
   );
 }

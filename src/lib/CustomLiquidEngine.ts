@@ -131,6 +131,16 @@ export class CustomLiquidEngine {
       const visualLeft = rect.left + (rect.width - elW) / 2;
       const visualTop = rect.top + (rect.height - elH) / 2;
 
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        target.closest(
+          'button, input, select, textarea, [role="button"], [role="tab"], [role="switch"], [role="slider"], [role="radio"], [role="checkbox"], label, a, [data-no-drag="true"]',
+        )
+      ) {
+        return;
+      }
+
       if (
         e.clientX >= visualLeft &&
         e.clientX <= visualLeft + elW &&

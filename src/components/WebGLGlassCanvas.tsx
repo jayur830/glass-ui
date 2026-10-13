@@ -10,12 +10,12 @@ import {
   Radio as RadioIcon,
   Search,
   Sliders,
-  Sparkles,
   ToggleLeft,
 } from 'lucide-react';
 import { ImageIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
+import { GlassButton } from '@/components/ui/GlassButton';
 import { CustomLiquidEngine } from '@/lib/CustomLiquidEngine';
 import type { LiquidGlassElementConfig } from '@/types/liquidGlass';
 
@@ -224,17 +224,12 @@ export default function WebGLGlassCanvas({ config, bgMode, onBgModeChange }: Web
         </button>
       </div>
 
-      {/* 1. Glass Button (버튼) */}
-      <div className="liquid-glass-item absolute top-20 left-4 md:top-24 md:left-8 px-6 py-3.5 z-10 text-white rounded-2xl cursor-grab active:cursor-grabbing">
-        <div className="liquid-glass-content flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-cyan-300" />
-          <button
-            type="button"
-            className="text-xs md:text-sm font-bold tracking-wide active:scale-95 transition"
-          >
-            Glass Button
-          </button>
-        </div>
+      {/* 1. Glass Button (독립 디자인 시스템 컴포넌트) */}
+      <div className="absolute top-20 left-4 md:top-24 md:left-8 z-10 flex gap-2">
+        <GlassButton variant="primary" size="md" className="w-40">
+          {/* <Sparkles className="w-4 h-4 text-cyan-300" /> */}
+          <span>Glass Button</span>
+        </GlassButton>
       </div>
 
       {/* 2. Glass Input (인풋) */}
@@ -378,10 +373,7 @@ export default function WebGLGlassCanvas({ config, bgMode, onBgModeChange }: Web
             <RadioIcon className="w-3.5 h-3.5" />
             <span>라디오:</span>
           </div>
-          <label
-            onClick={() => setRadioChoice('standard')}
-            className="flex items-center gap-2 cursor-pointer"
-          >
+          <label onClick={() => setRadioChoice('standard')} className="flex items-center gap-2 cursor-pointer">
             <span
               className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
                 radioChoice === 'standard' ? 'border-cyan-300' : 'border-white/40'
@@ -392,10 +384,7 @@ export default function WebGLGlassCanvas({ config, bgMode, onBgModeChange }: Web
             <span>스탠다드</span>
           </label>
 
-          <label
-            onClick={() => setRadioChoice('premium')}
-            className="flex items-center gap-2 cursor-pointer"
-          >
+          <label onClick={() => setRadioChoice('premium')} className="flex items-center gap-2 cursor-pointer">
             <span
               className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
                 radioChoice === 'premium' ? 'border-cyan-300' : 'border-white/40'
@@ -409,9 +398,7 @@ export default function WebGLGlassCanvas({ config, bgMode, onBgModeChange }: Web
       </div>
 
       {/* 9. Glass Container & Card (컨테이너 & 카드) */}
-      <div
-        className="liquid-glass-item absolute top-154 left-4 md:top-92 md:left-8 w-[calc(100%-2rem)] max-w-sm md:w-84 p-5 z-10 text-white rounded-[28px] cursor-grab active:cursor-grabbing"
-      >
+      <div className="liquid-glass-item absolute top-154 left-4 md:top-92 md:left-8 w-[calc(100%-2rem)] max-w-sm md:w-84 p-5 z-10 text-white rounded-[28px] cursor-grab active:cursor-grabbing">
         <div className="liquid-glass-content space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -434,9 +421,7 @@ export default function WebGLGlassCanvas({ config, bgMode, onBgModeChange }: Web
       </div>
 
       {/* 10. Glass Calendar (캘린더) */}
-      <div
-        className="liquid-glass-item absolute top-200 left-4 md:top-92 md:left-100 w-[calc(100%-2rem)] max-w-sm md:w-88 p-5 z-10 text-white rounded-[28px] cursor-grab active:cursor-grabbing"
-      >
+      <div className="liquid-glass-item absolute top-200 left-4 md:top-92 md:left-100 w-[calc(100%-2rem)] max-w-sm md:w-88 p-5 z-10 text-white rounded-[28px] cursor-grab active:cursor-grabbing">
         <div className="liquid-glass-content space-y-3">
           {/* Calendar Header */}
           <div className="flex items-center justify-between">
